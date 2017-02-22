@@ -30,7 +30,7 @@ public class ReportRunner {
 
             ReportGeneratorFactory.getInstance().getReportGenerator(csvReportArg).generateReport(topNArg);
         }
-        System.out.println("GitHub dev branch  Project");
+        System.out.println("--> GitHub dev branch  Project");
     }
 
     public  boolean parseArguments(String[] args) {
