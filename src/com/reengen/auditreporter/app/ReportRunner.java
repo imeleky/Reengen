@@ -6,7 +6,7 @@ import com.reengen.auditreporter.db.CSVLoader;
 
 import java.io.IOException;
 
-
+/**GitHub Project*/
 public class ReportRunner {
 
 
@@ -21,62 +21,68 @@ public class ReportRunner {
     public static void main(String[] args) throws IOException {
 
         ReportRunner myReportRunner = new ReportRunner();
-        myReportRunner.parseArguments(args);
+        if(myReportRunner.parseArguments(args))
+        {
+            CSVLoader csvLoader = new CSVLoader();
+            csvLoader.loadUserData(userCsvArg);
+            csvLoader.loadFileData(fileCsvArg);
+            csvLoader.loadUserFileMapData();
 
-        CSVLoader csvLoader = new CSVLoader();
-        csvLoader.loadUserData(userCsvArg);
-        csvLoader.loadFileData(fileCsvArg);
-        csvLoader.loadUserFileMapData();
-
-        ReportGeneratorFactory.getInstance().getReportGenerator(csvReportArg).generateReport(topNArg);
+            ReportGeneratorFactory.getInstance().getReportGenerator(csvReportArg).generateReport(topNArg);
+        }
+        System.out.println("GitHub Project");
     }
 
-    public static void parseArguments(String[] args) {
+    public  boolean parseArguments(String[] args) {
 
+        boolean retFlag= true;
         topNArg=-1;
 
         csvReportArg = Constants.CONSOLE_REPORT_TYPE;
 
-        try {
-            userCsvArg = args[Constants.USER_CSV_ARG_INDEX];
-
+        if( args.length >= Constants.FILE_CSV_ARG_INDEX +1) {
             try {
-                fileCsvArg = args[Constants.FILE_CSV_ARG_INDEX];
+                userCsvArg = args[Constants.USER_CSV_ARG_INDEX];
 
-                /**String builder is used to store -c -top n arguments in an arbitrary sequence*/
-                StringBuilder stringBuilder = createStringBuilderFromArguments(args);
+                try {
+                    fileCsvArg = args[Constants.FILE_CSV_ARG_INDEX];
 
-
-                if(Constants.STRING_IS_NOT_IN != stringBuilder.indexOf(Constants.CSV_REPORT_ARG) ) {
-                    csvReportArg = Constants.CSV_REPORT_TYPE;
-                }
+                    /**String builder is used to store -c -top n arguments in an arbitrary sequence*/
+                    StringBuilder stringBuilder = createStringBuilderFromArguments(args);
 
 
-                int topNindex = stringBuilder.indexOf(Constants.TOP_REPORT_ARG);
+                    if (Constants.STRING_IS_NOT_IN != stringBuilder.indexOf(Constants.CSV_REPORT_ARG)) {
+                        csvReportArg = Constants.CSV_REPORT_TYPE;
+                    }
 
-                if(Constants.STRING_IS_NOT_IN != topNindex)
-                {
 
-                    if(stringBuilder.length() > topNindex+Constants.TOPN_STRING_SIZE)
-                    {
-                        int i = stringBuilder.indexOf(Constants.DELIMITER, topNindex+Constants.TOPN_STRING_SIZE);
-                        try {
-                            topNArg = Integer.parseInt(stringBuilder.substring(topNindex+Constants.TOPN_STRING_SIZE,i));
-                        }catch (IllegalArgumentException e)
-                        {
-                            System.err.println("Not a Valid Top N argument exception....");
+                    int topNindex = stringBuilder.indexOf(Constants.TOP_REPORT_ARG);
+
+                    if (Constants.STRING_IS_NOT_IN != topNindex) {
+
+                        if (stringBuilder.length() > topNindex + Constants.TOPN_STRING_SIZE) {
+                            int i = stringBuilder.indexOf(Constants.DELIMITER, topNindex + Constants.TOPN_STRING_SIZE);
+                            try {
+                                topNArg = Integer.parseInt(stringBuilder.substring(topNindex + Constants.TOPN_STRING_SIZE, i));
+                            } catch (IllegalArgumentException e) {
+                                System.err.println("Not a Valid Top N argument exception....");
+                            }
                         }
                     }
+                } catch (IllegalArgumentException e) {
+                    System.err.println("Not a Valid File CSV argument exception....");
                 }
-            }catch (IllegalArgumentException e)
-            {
-                System.err.println("Not a Valid File CSV argument exception....");
-            }
 
-        }catch (IllegalArgumentException e)
-        {
-            System.err.println("Not a Valid User CSV argument exception....");
+            } catch (IllegalArgumentException e) {
+                System.err.println("Not a Valid User CSV argument exception....");
+            }
         }
+        else
+        {
+            retFlag = false;
+            System.err.println("Not a Valid argument exception....");
+        }
+        return retFlag;
     }
 
     private static StringBuilder createStringBuilderFromArguments(String[] args) {
